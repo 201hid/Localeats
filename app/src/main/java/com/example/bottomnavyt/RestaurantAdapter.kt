@@ -3,15 +3,19 @@ package com.example.bottomnavyt
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
 class RestaurantAdapter : RecyclerView.Adapter<RestaurantAdapter.RestaurantViewHolder>() {
     private var restaurants: List<Restaurant> = emptyList()
 
+    var onRestaurantFavoriteClickListener: ((Restaurant) -> Unit)? = null
+
     inner class RestaurantViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val restaurantName: TextView = itemView.findViewById(R.id.restaurantName)
         val restaurantAddress: TextView = itemView.findViewById(R.id.restaurantAddress)
+        val favoriteButton: Button = itemView.findViewById(R.id.favoriteButton)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RestaurantViewHolder {
@@ -23,6 +27,10 @@ class RestaurantAdapter : RecyclerView.Adapter<RestaurantAdapter.RestaurantViewH
         val restaurant = restaurants[position]
         holder.restaurantName.text = restaurant.name
         holder.restaurantAddress.text = restaurant.vicinity
+
+        holder.favoriteButton.setOnClickListener {
+            onRestaurantFavoriteClickListener?.invoke(restaurant)
+        }
     }
 
     override fun getItemCount(): Int {
@@ -34,4 +42,3 @@ class RestaurantAdapter : RecyclerView.Adapter<RestaurantAdapter.RestaurantViewH
         notifyDataSetChanged()
     }
 }
-

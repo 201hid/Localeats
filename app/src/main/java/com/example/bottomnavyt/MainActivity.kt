@@ -23,7 +23,6 @@ class MainActivity : AppCompatActivity() {
         drawerLayout = findViewById(R.id.drawer_layout)
         navView = findViewById(R.id.nav_view)
 
-        // Initialize the ActionBarDrawerToggle instance
         val toggle = ActionBarDrawerToggle(
             this, drawerLayout, toolbar,
             R.string.navigation_drawer_open, R.string.navigation_drawer_close
@@ -38,13 +37,14 @@ class MainActivity : AppCompatActivity() {
                     supportFragmentManager.beginTransaction()
                         .replace(R.id.fragment_container, Resturants()).commit()
                 }
-                // Handle other navigation items if added
-            }
+                R.id.nav_favorites -> {
+                    supportFragmentManager.beginTransaction()
+                        .replace(R.id.fragment_container, FavoritesFragment()).commit()
+                }            }
             drawerLayout.closeDrawer(GravityCompat.START)
             true
         }
 
-        // If you want to set a default fragment to load on app start:
         if (savedInstanceState == null) {
             supportFragmentManager.beginTransaction()
                 .replace(R.id.fragment_container, Resturants()).commit()
@@ -59,4 +59,6 @@ class MainActivity : AppCompatActivity() {
             super.onBackPressed()
         }
     }
+
+
 }

@@ -2,6 +2,11 @@
     <item
         android:id="@+id/nav_your_fragment"
         android:icon="@drawable/camry"
-        android:title="Your Fragment Name" />
+        android:title="Restaurants" />
+
+    <item
+        android:id="@+id/nav_favorites"
+    android:title="Favorites" />
+
     <!-- Add more items as needed -->
 </menu>

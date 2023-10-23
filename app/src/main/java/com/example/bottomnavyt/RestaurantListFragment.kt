@@ -15,10 +15,7 @@ import okhttp3.*
 import org.json.JSONObject
 import java.io.IOException
 
-import androidx.appcompat.app.AppCompatActivity
 
-import com.example.bottomnavyt.Restaurant
-import okhttp3.*
 
 import okhttp3.Callback
 import okhttp3.Call
@@ -52,13 +49,34 @@ class Resturants : Fragment() {
         recyclerView.layoutManager = layoutManager
         recyclerView.adapter = adapter
 
+        // Set default button text
+        getLocationButton.text = "Select Location"
+
         getLocationButton.setOnClickListener {
             val locationIntent = Intent(requireActivity(), LocationActivity::class.java)
             startActivityForResult(locationIntent, LOCATION_REQUEST_CODE)
         }
 
+        adapter.onRestaurantFavoriteClickListener = { restaurant ->
+            // Handle favorite click
+            val favoritesFragment = FavoritesFragment()
+            val bundle = Bundle()
+            bundle.putString("name", restaurant.name)
+            bundle.putString("address", restaurant.vicinity)
+            favoritesFragment.arguments = bundle
+
+            // Fragment transaction to show FavoritesFragment
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.fragment_container, favoritesFragment)
+                .addToBackStack(null)
+                .commit()
+        }
+
+
+
         return view
     }
+
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
@@ -72,7 +90,18 @@ class Resturants : Fragment() {
                 location = "$latitude, $longitude"
                 radius = radiusStr.toInt()
                 getNearbyRestaurants(apiKey, location, radius, adapter)
+
+                // Convert latitude and longitude to address
+                getAddressFromLocation(latitude, longitude) { address ->
+                    activity?.runOnUiThread {
+                        getLocationButton.text = address
+                    }
+                }
+            } else {
+                getLocationButton.text = "Select Location"
             }
+
+
         }
     }
 
@@ -113,6 +142,36 @@ class Resturants : Fragment() {
         })
     }
 
+    private fun getAddressFromLocation(latitude: String, longitude: String, callback: (address: String) -> Unit) {
+        val client = OkHttpClient()
+        val url = "https://maps.googleapis.com/maps/api/geocode/json?latlng=$latitude,$longitude&key=$apiKey"
+
+        val request = Request.Builder()
+            .url(url)
+            .build()
+
+        client.newCall(request).enqueue(object : Callback {
+            override fun onResponse(call: Call, response: Response) {
+                if (response.isSuccessful) {
+                    val responseData = response.body?.string()
+                    val jsonObject = JSONObject(responseData!!)
+                    val results = jsonObject.getJSONArray("results")
+                    if (results.length() > 0) {
+                        val formattedAddress = results.getJSONObject(0).getString("formatted_address")
+                        callback(formattedAddress)
+                    } else {
+                        callback("Address not found")
+                    }
+                } else {
+                    callback("Error getting address")
+                }
+            }
+
+            override fun onFailure(call: Call, e: IOException) {
+                callback("Network error")
+            }
+        })
+    }
 
 
     private fun parseRestaurantData(responseData: String?): List<Restaurant> {
