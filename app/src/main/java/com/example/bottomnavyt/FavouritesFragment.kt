@@ -1,5 +1,4 @@
 package com.example.bottomnavyt
-
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -10,12 +9,13 @@ import androidx.recyclerview.widget.RecyclerView
 import java.io.BufferedReader
 import java.io.File
 import java.io.FileReader
+import java.io.FileWriter
 import java.io.IOException
 
 class FavoriteRestaurantsFragment : Fragment() {
 
     private lateinit var recyclerView: RecyclerView
-    private lateinit var adapter: RestaurantAdapter
+    private lateinit var adapter: FavoriteRestaurantAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -24,7 +24,9 @@ class FavoriteRestaurantsFragment : Fragment() {
         val view = inflater.inflate(R.layout.fragment_favorite_restaurants, container, false)
 
         recyclerView = view.findViewById(R.id.favoriteRestaurantRecyclerView)
-        adapter = RestaurantAdapter()
+        adapter = FavoriteRestaurantAdapter { restaurant ->
+            deleteRestaurant(restaurant)
+        }
 
         val layoutManager = LinearLayoutManager(requireContext())
         recyclerView.layoutManager = layoutManager
@@ -51,9 +53,39 @@ class FavoriteRestaurantsFragment : Fragment() {
                     }
                 }
 
-                adapter.setData(restaurantList) // Assuming your adapter has a setData method to update the displayed data
+                adapter.setData(restaurantList)
 
                 reader.close()
+            } catch (e: IOException) {
+                e.printStackTrace()
+            }
+        }
+    }
+
+    private fun deleteRestaurant(restaurant: Restaurant) {
+        val file = File(requireContext().getExternalFilesDir(null), "favorites.csv")
+
+        if (file.exists()) {
+            try {
+                val reader = BufferedReader(FileReader(file))
+                val lines = reader.readLines()
+                reader.close()
+
+                val writer = FileWriter(file)
+                for (line in lines) {
+                    val parts = line.split(",")
+                    if (parts.size >= 2) {
+                        val name = parts[0]
+                        val description = parts[1]
+                        if (name != restaurant.name || description != restaurant.vicinity) {
+                            writer.write("$name,$description\n")
+                        }
+                    }
+                }
+                writer.close()
+
+                // Reload the updated list of favorite restaurants
+                loadFavoriteRestaurants()
             } catch (e: IOException) {
                 e.printStackTrace()
             }

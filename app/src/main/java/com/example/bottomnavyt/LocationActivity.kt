@@ -1,31 +1,37 @@
 package com.example.bottomnavyt
-
 import android.Manifest
 import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.location.Address
+import android.location.Geocoder
 import android.location.Location
 import android.os.Bundle
-import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.SeekBar
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.google.android.gms.common.api.Status
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.MapView
-import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.UiSettings
 import com.google.android.gms.maps.model.Circle
 import com.google.android.gms.maps.model.CircleOptions
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.libraries.places.api.Places
+import com.google.android.libraries.places.api.model.Place
+import com.google.android.libraries.places.widget.AutocompleteSupportFragment
+import com.google.android.libraries.places.widget.listener.PlaceSelectionListener
+import java.io.IOException
 
 class LocationActivity : AppCompatActivity() {
 
@@ -41,11 +47,12 @@ class LocationActivity : AppCompatActivity() {
     private var currentMarker: Marker? = null
     private var radiusCircle: Circle? = null
     private var userInteractedWithMap: Boolean = false
+    private lateinit var locationSearchEditText: EditText
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_location)
-
+        setupAutocomplete()
         // Initialize views
         latitudeEditText = findViewById(R.id.latitudeEditText)
         longitudeEditText = findViewById(R.id.longitudeEditText)
@@ -53,6 +60,10 @@ class LocationActivity : AppCompatActivity() {
         mapView = findViewById(R.id.mapView)
         locateButton = findViewById(R.id.locateButton)
         radiusSeekBar = findViewById(R.id.radiusSeekBar)
+        Places.initialize(applicationContext, "AIzaSyCG-YhCR3j6oq8Av3Jz78OuTrjbUnzLtzI")
+
+//        locationSearchEditText = findViewById(R.id.locationSearchEditText) // Initialization here
+
 
         // Initialize the map
         mapView.onCreate(savedInstanceState)
@@ -97,6 +108,8 @@ class LocationActivity : AppCompatActivity() {
                 // Handle long click to pan the map
                 googleMap.animateCamera(CameraUpdateFactory.newLatLng(latLng))
             }
+
+
 
             // Rest of your code
         }
@@ -234,4 +247,61 @@ class LocationActivity : AppCompatActivity() {
             }
         }
     }
+    private fun performLocationSearch(locationName: String) {
+        val geocoder = Geocoder(this)
+        val addresses: List<Address>
+
+        try {
+            addresses = geocoder.getFromLocationName(locationName, 1)
+            if (addresses.isNotEmpty()) {
+                val address = addresses[0]
+                val latLng = LatLng(address.latitude, address.longitude)
+                googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 16f))
+                latitudeEditText.setText(address.latitude.toString())
+                longitudeEditText.setText(address.longitude.toString())
+
+                if (currentMarker == null) {
+                    val markerOptions = MarkerOptions().position(latLng)
+                    currentMarker = googleMap.addMarker(markerOptions)
+                } else {
+                    currentMarker?.position = latLng
+                }
+
+                updateRadiusCircle()
+            } else {
+                // Handle case where no location is found
+                Toast.makeText(this, "Location not found", Toast.LENGTH_SHORT).show()
+            }
+        } catch (e: IOException) {
+            e.printStackTrace()
+            // Handle exception (e.g., network error)
+            Toast.makeText(this, "An error occurred while searching for the location", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun setupAutocomplete() {
+        val autocompleteFragment = supportFragmentManager.findFragmentById(R.id.autocomplete_fragment)
+                as AutocompleteSupportFragment
+
+        autocompleteFragment.setPlaceFields(listOf(Place.Field.ID, Place.Field.NAME, Place.Field.LAT_LNG))
+
+        autocompleteFragment.setOnPlaceSelectedListener(object : PlaceSelectionListener {
+            override fun onPlaceSelected(place: Place) {
+                // Handle the selected place
+                val locationName = place.name ?: ""
+                performLocationSearch(locationName)
+            }
+
+            override fun onError(status: Status) {
+                // Handle errors
+            }
+        })
+    }
+
+
+
+
+
+
+
 }

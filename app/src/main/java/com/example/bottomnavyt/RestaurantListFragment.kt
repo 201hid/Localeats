@@ -70,6 +70,10 @@ class RestaurantListFragment : Fragment() {
             }
         }
 
+        adapter.onRestaurantUnfavoriteClickListener = { restaurant ->
+            deleteRestaurantFromFavorites(restaurant)
+        }
+
         return view
     }
 
@@ -192,6 +196,10 @@ class RestaurantListFragment : Fragment() {
     private fun saveRestaurantToFavorites(restaurant: Restaurant) {
         val file = File(requireContext().getExternalFilesDir(null), "favorites.csv")
 
+        if (file.exists() && file.readText().contains("${restaurant.name},${restaurant.vicinity}")) {
+            // The restaurant is already in the favorites, so we don't add it again
+            return
+        }
         try {
             val writer = FileWriter(file, true) // True for appending data
             writer.append("${restaurant.name},${restaurant.vicinity}\n")
@@ -199,6 +207,16 @@ class RestaurantListFragment : Fragment() {
             writer.close()
         } catch (e: IOException) {
             e.printStackTrace()
+        }
+    }
+
+    private fun deleteRestaurantFromFavorites(restaurant: Restaurant) {
+        val file = File(requireContext().getExternalFilesDir(null), "favorites.csv")
+
+        if (file.exists()) {
+            val restaurants = file.readLines().toMutableList()
+            restaurants.removeIf { line -> line.contains("${restaurant.name},${restaurant.vicinity}") }
+            file.writeText(restaurants.joinToString(separator = "\n"))
         }
     }
 }

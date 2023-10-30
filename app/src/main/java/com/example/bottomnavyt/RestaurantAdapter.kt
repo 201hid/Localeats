@@ -6,11 +6,13 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import java.io.File
 
 class RestaurantAdapter : RecyclerView.Adapter<RestaurantAdapter.RestaurantViewHolder>() {
     private var restaurants: List<Restaurant> = emptyList()
 
     var onRestaurantFavoriteClickListener: ((Restaurant) -> Unit)? = null
+    var onRestaurantUnfavoriteClickListener: ((Restaurant) -> Unit)? = null
 
     inner class RestaurantViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val restaurantName: TextView = itemView.findViewById(R.id.restaurantName)
@@ -28,8 +30,21 @@ class RestaurantAdapter : RecyclerView.Adapter<RestaurantAdapter.RestaurantViewH
         holder.restaurantName.text = restaurant.name
         holder.restaurantAddress.text = restaurant.vicinity
 
+        // Check if the restaurant is already in the favorites
+        if (isRestaurantFavorite(restaurant, holder.itemView)) {
+            holder.favoriteButton.text = "Unfavorite"
+        } else {
+            holder.favoriteButton.text = "Favorite"
+        }
+
         holder.favoriteButton.setOnClickListener {
-            onRestaurantFavoriteClickListener?.invoke(restaurant)
+            if (holder.favoriteButton.text == "Favorite") {
+                onRestaurantFavoriteClickListener?.invoke(restaurant)
+                holder.favoriteButton.text = "Unfavorite"
+            } else {
+                onRestaurantUnfavoriteClickListener?.invoke(restaurant)
+                holder.favoriteButton.text = "Favorite"
+            }
         }
     }
 
@@ -40,5 +55,10 @@ class RestaurantAdapter : RecyclerView.Adapter<RestaurantAdapter.RestaurantViewH
     fun setData(data: List<Restaurant>) {
         restaurants = data
         notifyDataSetChanged()
+    }
+
+    private fun isRestaurantFavorite(restaurant: Restaurant, itemView: View): Boolean {
+        val file = File(itemView.context.getExternalFilesDir(null), "favorites.csv")
+        return file.exists() && file.readText().contains("${restaurant.name},${restaurant.vicinity}")
     }
 }
