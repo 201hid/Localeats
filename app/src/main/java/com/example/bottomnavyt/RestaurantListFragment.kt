@@ -1,29 +1,30 @@
 package com.example.bottomnavyt
 
+import android.Manifest
 import android.app.Activity
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ProgressBar
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import okhttp3.*
 import org.json.JSONObject
 import java.io.IOException
-
-
-
 import okhttp3.Callback
 import okhttp3.Call
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
+import java.io.File
+import java.io.FileWriter
 
-class Resturants : Fragment() {
+class RestaurantListFragment : Fragment() {
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var progressBar: ProgressBar
@@ -58,21 +59,16 @@ class Resturants : Fragment() {
         }
 
         adapter.onRestaurantFavoriteClickListener = { restaurant ->
-            // Handle favorite click
-            val favoritesFragment = FavoritesFragment()
-            val bundle = Bundle()
-            bundle.putString("name", restaurant.name)
-            bundle.putString("address", restaurant.vicinity)
-            favoritesFragment.arguments = bundle
-
-            // Fragment transaction to show FavoritesFragment
-            parentFragmentManager.beginTransaction()
-                .replace(R.id.fragment_container, favoritesFragment)
-                .addToBackStack(null)
-                .commit()
+            // Check for the WRITE_EXTERNAL_STORAGE permission
+            if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                == PackageManager.PERMISSION_GRANTED) {
+                // Permission is granted, save the restaurant data
+                saveRestaurantToFavorites(restaurant)
+            } else {
+                // Request the permission
+                requestPermissions(arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), 0)
+            }
         }
-
-
 
         return view
     }
@@ -190,5 +186,19 @@ class Resturants : Fragment() {
             }
         }
         return restaurantList
+    }
+
+
+    private fun saveRestaurantToFavorites(restaurant: Restaurant) {
+        val file = File(requireContext().getExternalFilesDir(null), "favorites.csv")
+
+        try {
+            val writer = FileWriter(file, true) // True for appending data
+            writer.append("${restaurant.name},${restaurant.vicinity}\n")
+            writer.flush()
+            writer.close()
+        } catch (e: IOException) {
+            e.printStackTrace()
+        }
     }
 }

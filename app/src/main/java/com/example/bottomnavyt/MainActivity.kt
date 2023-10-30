@@ -35,22 +35,24 @@ class MainActivity : AppCompatActivity() {
             when (it.itemId) {
                 R.id.nav_your_fragment -> {
                     supportFragmentManager.beginTransaction()
-                        .replace(R.id.fragment_container, Resturants()).commit()
+                        .replace(R.id.fragment_container, RestaurantListFragment()).commit()
                 }
                 R.id.nav_favorites -> {
                     supportFragmentManager.beginTransaction()
-                        .replace(R.id.fragment_container, FavoritesFragment()).commit()
+                        .replace(R.id.fragment_container, FavoriteRestaurantsFragment()).commit()
                 }            }
             drawerLayout.closeDrawer(GravityCompat.START)
             true
         }
 
+
         if (savedInstanceState == null) {
             supportFragmentManager.beginTransaction()
-                .replace(R.id.fragment_container, Resturants()).commit()
+                .replace(R.id.fragment_container, RestaurantListFragment()).commit()
             navView.setCheckedItem(R.id.nav_your_fragment)
         }
     }
+
 
     override fun onBackPressed() {
         if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
