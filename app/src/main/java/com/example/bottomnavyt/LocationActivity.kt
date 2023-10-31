@@ -132,19 +132,26 @@ class LocationActivity : AppCompatActivity() {
         })
 
         submitButton.setOnClickListener {
-            // Handle the submit button click
             val latitude = latitudeEditText.text.toString()
             val longitude = longitudeEditText.text.toString()
-            val radius = radiusSeekBar.progress.toString()
+            val radius = radiusSeekBar.progress.toString().toInt()
 
-            val resultIntent = Intent()
-            resultIntent.putExtra("latitude", latitude)
-            resultIntent.putExtra("longitude", longitude)
-            resultIntent.putExtra("radius", radius)
+            if (latitude.isEmpty() || longitude.isEmpty()) {
+                Toast.makeText(this, "Location not selected. Please select a location.", Toast.LENGTH_SHORT).show()
+            } else if (radius == 0) {
+                Toast.makeText(this, "Please specify a range for the radius.", Toast.LENGTH_SHORT).show()
+            } else {
+                val resultIntent = Intent()
+                resultIntent.putExtra("latitude", latitude)
+                resultIntent.putExtra("longitude", longitude)
+                resultIntent.putExtra("radius", radius.toString())
 
-            setResult(Activity.RESULT_OK, resultIntent)
-            finish()
+                setResult(Activity.RESULT_OK, resultIntent)
+                finish()
+            }
         }
+
+
 
         locateButton.setOnClickListener {
             // Check if location permissions are granted
