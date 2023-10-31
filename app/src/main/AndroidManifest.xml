@@ -3,15 +3,16 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.example.bottomnavyt">
 
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-
-
-
-
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"
+        android:label="Access network state for data retrieval" />
+    <uses-permission android:name="android.permission.INTERNET"
+        android:label="Access the internet for data retrieval" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"
+        android:label="Access coarse location for location services" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"
+        android:label="Access fine location for precise location services" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:label="Write external storage for data storage" />
 
     <application
         android:allowBackup="true"
@@ -37,7 +38,5 @@
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyCG-YhCR3j6oq8Av3Jz78OuTrjbUnzLtzI" />
-
     </application>
-
 </manifest>

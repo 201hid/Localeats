@@ -1,19 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:padding="16dp"
+    tools:context=".SettingsFragment">
 
     <androidx.appcompat.widget.SwitchCompat
-        android:id="@+id/switch_light_mode"
+        android:id="@+id/switch_theme"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Light Mode" />
+        android:text="Dark Mode"
+        android:checked="false" />
 
-    <androidx.appcompat.widget.SwitchCompat
-        android:id="@+id/switch_dark_mode"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Dark Mode" />
+    <!-- Add more settings elements here as needed -->
 
 </LinearLayout>
