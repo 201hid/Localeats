@@ -2,6 +2,7 @@ package com.example.bottomnavyt
 
 import android.Manifest
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
@@ -15,14 +16,14 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import org.json.JSONObject
+import java.io.File
+import java.io.FileWriter
 import java.io.IOException
 import okhttp3.Callback
 import okhttp3.Call
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
-import java.io.File
-import java.io.FileWriter
 
 class RestaurantListFragment : Fragment() {
 
@@ -35,6 +36,11 @@ class RestaurantListFragment : Fragment() {
     private var apiKey = "AIzaSyCG-YhCR3j6oq8Av3Jz78OuTrjbUnzLtzI"
     private var location: String = ""
     private var radius: Int = 1500
+
+    // Constants for SharedPreferences
+    private val PREFS_NAME = "MyPrefs"
+    private val PREF_LOCATION = "last_location"
+    private val PREF_RADIUS = "last_radius"
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -50,8 +56,28 @@ class RestaurantListFragment : Fragment() {
         recyclerView.layoutManager = layoutManager
         recyclerView.adapter = adapter
 
-        // Set default button text
-        getLocationButton.text = "Select Location"
+        // Load the last selected location values from SharedPreferences
+        val lastSavedLocation = loadLastLocationFromSharedPreferences()
+        if (lastSavedLocation != null) {
+            location = lastSavedLocation.first
+            radius = lastSavedLocation.second
+
+            // Split the location into latitude and longitude
+            val coordinates = location.split(", ")
+            val latitude = coordinates[0]
+            val longitude = coordinates[1]
+
+            // Use getAddressFromLocation to get the address and update the button text
+            getAddressFromLocation(latitude, longitude) { address ->
+                activity?.runOnUiThread {
+                    getLocationButton.text = address
+                }
+            }
+
+            getNearbyRestaurants(apiKey, location, radius, adapter)
+        } else {
+            getLocationButton.text = "Select Location"
+        }
 
         getLocationButton.setOnClickListener {
             val locationIntent = Intent(requireActivity(), LocationActivity::class.java)
@@ -89,6 +115,8 @@ class RestaurantListFragment : Fragment() {
             if (latitude != null && longitude != null && radiusStr != null) {
                 location = "$latitude, $longitude"
                 radius = radiusStr.toInt()
+                // Save the values in SharedPreferences
+                saveLocationToSharedPreferences(location, radius)
                 getNearbyRestaurants(apiKey, location, radius, adapter)
 
                 // Convert latitude and longitude to address
@@ -100,8 +128,6 @@ class RestaurantListFragment : Fragment() {
             } else {
                 getLocationButton.text = "Select Location"
             }
-
-
         }
     }
 
@@ -117,7 +143,7 @@ class RestaurantListFragment : Fragment() {
             .url(url)
             .build()
 
-        if(::progressBar.isInitialized) progressBar.visibility = View.VISIBLE
+        if (::progressBar.isInitialized) progressBar.visibility = View.VISIBLE
 
         client.newCall(request).enqueue(object : Callback {
             override fun onResponse(call: Call, response: Response) {
@@ -125,8 +151,8 @@ class RestaurantListFragment : Fragment() {
                     val responseData = response.body?.string()
                     val restaurants = parseRestaurantData(responseData)
                     activity?.runOnUiThread {
-                        if(::adapter.isInitialized) adapter.setData(restaurants)
-                        if(::progressBar.isInitialized) progressBar.visibility = View.GONE
+                        if (::adapter.isInitialized) adapter.setData(restaurants)
+                        if (::progressBar.isInitialized) progressBar.visibility = View.GONE
                     }
                 } else {
                     // Handle error response
@@ -136,7 +162,7 @@ class RestaurantListFragment : Fragment() {
             override fun onFailure(call: Call, e: IOException) {
                 // Handle network or request failure
                 activity?.runOnUiThread {
-                    if(::progressBar.isInitialized) progressBar.visibility = View.GONE
+                    if (::progressBar.isInitialized) progressBar.visibility = View.GONE
                 }
             }
         })
@@ -173,7 +199,6 @@ class RestaurantListFragment : Fragment() {
         })
     }
 
-
     private fun parseRestaurantData(responseData: String?): List<Restaurant> {
         val restaurantList = mutableListOf<Restaurant>()
         responseData?.let {
@@ -191,7 +216,6 @@ class RestaurantListFragment : Fragment() {
         }
         return restaurantList
     }
-
 
     private fun saveRestaurantToFavorites(restaurant: Restaurant) {
         val file = File(requireContext().getExternalFilesDir(null), "favorites.csv")
@@ -218,5 +242,25 @@ class RestaurantListFragment : Fragment() {
             restaurants.removeIf { line -> line.contains("${restaurant.name},${restaurant.vicinity}") }
             file.writeText(restaurants.joinToString(separator = "\n"))
         }
+    }
+
+    private fun saveLocationToSharedPreferences(location: String, radius: Int) {
+        val sharedPreferences = requireActivity().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val editor = sharedPreferences.edit()
+        editor.putString(PREF_LOCATION, location)
+        editor.putInt(PREF_RADIUS, radius)
+        editor.apply()
+    }
+
+    private fun loadLastLocationFromSharedPreferences(): Pair<String, Int>? {
+        val sharedPreferences = requireActivity().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val location = sharedPreferences.getString(PREF_LOCATION, null)
+        val radius = sharedPreferences.getInt(PREF_RADIUS, -1)
+
+        if (location != null && radius != -1) {
+            return Pair(location, radius)
+        }
+
+        return null
     }
 }
