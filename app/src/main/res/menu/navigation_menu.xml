@@ -7,5 +7,7 @@
         android:id="@+id/nav_favorites"
     android:title="Favorites" />
 
-    <!-- Add more items as needed -->
-</menu>
+
+    <item
+        android:id="@+id/nav_settings"
+        android:title="Settings" /></menu>

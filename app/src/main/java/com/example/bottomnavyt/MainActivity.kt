@@ -40,7 +40,14 @@ class MainActivity : AppCompatActivity() {
                 R.id.nav_favorites -> {
                     supportFragmentManager.beginTransaction()
                         .replace(R.id.fragment_container, FavoriteRestaurantsFragment()).commit()
-                }            }
+                }
+                R.id.nav_settings -> {
+                    // Replace with SettingsFragment
+                    supportFragmentManager.beginTransaction()
+                        .replace(R.id.fragment_container, SettingsFragment()).commit()
+                }
+
+            }
             drawerLayout.closeDrawer(GravityCompat.START)
             true
         }
