@@ -11,6 +11,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ProgressBar
+import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -24,6 +25,7 @@ import okhttp3.Call
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
+import java.net.SocketTimeoutException
 
 class RestaurantListFragment : Fragment() {
 
@@ -160,11 +162,18 @@ class RestaurantListFragment : Fragment() {
             }
 
             override fun onFailure(call: Call, e: IOException) {
-                // Handle network or request failure
                 activity?.runOnUiThread {
                     if (::progressBar.isInitialized) progressBar.visibility = View.GONE
+                    if (e is SocketTimeoutException) {
+                        // Handle timeout error
+                        showToast("Request timed out. Please check your internet connection.")
+                    } else {
+                        // Handle other network or request failures
+                        showToast("An error occurred while fetching restaurant data.")
+                    }
                 }
             }
+
         })
     }
 
@@ -263,4 +272,8 @@ class RestaurantListFragment : Fragment() {
 
         return null
     }
+    private fun showToast(message: String) {
+        Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
+    }
+
 }
