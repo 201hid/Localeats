@@ -16,10 +16,18 @@
 
 
     <Button
-        android:id="@+id/getLocationButton"
-        android:layout_width="wrap_content"
+    android:id="@+id/getLocationButton"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Get Location" />
+        android:drawableLeft="@drawable/map"
+        android:drawablePadding="8dp"
+        android:padding="3dp"
+        android:background="@drawable/location_button_background"
+        android:text="Select Location"
+        android:textAllCaps="false"
+        android:textColor="@color/white"
+        app:cornerRadius="5dp" />
+
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/restaurantRecyclerView"

@@ -35,7 +35,7 @@ class RestaurantListFragment : Fragment() {
     private lateinit var adapter: RestaurantAdapter
 
     private val LOCATION_REQUEST_CODE = 1
-    private var apiKey = "AIzaSyCG-YhCR3j6oq8Av3Jz78OuTrjbUnzLtzI"
+    private var apiKey = "AIzaSyANdilSXlk6CvSrV9QsD4aySqnbQpNYGkI"
     private var location: String = ""
     private var radius: Int = 1500
 

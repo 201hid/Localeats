@@ -3,7 +3,7 @@ package com.example.bottomnavyt
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import java.io.File
@@ -17,7 +17,7 @@ class RestaurantAdapter : RecyclerView.Adapter<RestaurantAdapter.RestaurantViewH
     inner class RestaurantViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val restaurantName: TextView = itemView.findViewById(R.id.restaurantName)
         val restaurantAddress: TextView = itemView.findViewById(R.id.restaurantAddress)
-        val favoriteButton: Button = itemView.findViewById(R.id.favoriteButton)
+        val loveButton: ImageView = itemView.findViewById(R.id.loveButton)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RestaurantViewHolder {
@@ -30,20 +30,20 @@ class RestaurantAdapter : RecyclerView.Adapter<RestaurantAdapter.RestaurantViewH
         holder.restaurantName.text = restaurant.name
         holder.restaurantAddress.text = restaurant.vicinity
 
-        // Check if the restaurant is already in the favorites
-        if (isRestaurantFavorite(restaurant, holder.itemView)) {
-            holder.favoriteButton.text = "Unfavorite"
-        } else {
-            holder.favoriteButton.text = "Favorite"
-        }
+        // Set the initial icon for the love button
+        val isFavorite = isRestaurantFavorite(restaurant, holder.itemView)
+        holder.loveButton.setImageResource(
+            if (isFavorite) R.drawable.heart_filled else R.drawable.heart_unfilled // Use your actual drawable resource names
+        )
 
-        holder.favoriteButton.setOnClickListener {
-            if (holder.favoriteButton.text == "Favorite") {
-                onRestaurantFavoriteClickListener?.invoke(restaurant)
-                holder.favoriteButton.text = "Unfavorite"
-            } else {
+        // Set a click listener for the love button
+        holder.loveButton.setOnClickListener {
+            if (isFavorite) {
                 onRestaurantUnfavoriteClickListener?.invoke(restaurant)
-                holder.favoriteButton.text = "Favorite"
+                holder.loveButton.setImageResource(R.drawable.heart_unfilled)
+            } else {
+                onRestaurantFavoriteClickListener?.invoke(restaurant)
+                holder.loveButton.setImageResource(R.drawable.heart_filled)
             }
         }
     }

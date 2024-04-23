@@ -11,6 +11,8 @@
     <color name="circleFillColor">#200077FF</color> <!-- Change this color code as needed -->
     <color name="colorActive">#2196F3</color>  <!-- Active color for the button -->
     <color name="colorInactive">#757575</color> <!-- Inactive color for the button -->
+    <color name="offwhite">#DCDADA</color> <!-- Inactive color for the button -->
+
 </resources>
 
 
