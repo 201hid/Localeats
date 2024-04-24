@@ -60,7 +60,7 @@ class LocationActivity : AppCompatActivity() {
         mapView = findViewById(R.id.mapView)
         locateButton = findViewById(R.id.locateButton)
         radiusSeekBar = findViewById(R.id.radiusSeekBar)
-        Places.initialize(applicationContext, "AIzaSyCG-YhCR3j6oq8Av3Jz78OuTrjbUnzLtzI")
+        Places.initialize(applicationContext, "AIzaSyANdilSXlk6CvSrV9QsD4aySqnbQpNYGkI")
 
 //        locationSearchEditText = findViewById(R.id.locationSearchEditText) // Initialization here
 

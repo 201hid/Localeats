@@ -2,7 +2,7 @@
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
     <item>
         <shape android:shape="rectangle">
-            <solid android:color="#E3E3E3" /> <!-- Example background color set to a shade of orange -->
+            <solid android:color="#F8F8F8" /> <!-- Off-white background color -->
             <corners android:radius="2dp" />
         </shape>
     </item>

@@ -28,7 +28,6 @@
         android:textColor="@color/white"
         app:cornerRadius="5dp" />
 
-
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/restaurantRecyclerView"
         android:layout_width="match_parent"

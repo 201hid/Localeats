@@ -16,15 +16,17 @@
 
     <EditText
         android:id="@+id/latitudeEditText"
-        android:layout_width="match_parent"
+        android:layout_width="375dp"
         android:layout_height="wrap_content"
-        android:hint="Latitude" />
+        android:hint="Latitude"
+        android:visibility="invisible" />
 
     <EditText
         android:id="@+id/longitudeEditText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Longitude" />
+        android:hint="Longitude"
+        android:visibility="invisible"/>
 
     <SeekBar
         android:id="@+id/radiusSeekBar"
@@ -53,7 +55,7 @@
     <com.google.android.gms.maps.MapView
         android:id="@+id/mapView"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
+        android:layout_height="319dp"
         android:layout_weight="1"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
